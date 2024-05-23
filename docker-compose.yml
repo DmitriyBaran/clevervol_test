@@ -15,7 +15,15 @@ services:
       - db
     networks:
       - app-network
-
+    command: >
+      sh -c "
+      composer install &&
+      until mysql -h db -u root -prootpass -e 'select 1'; do echo 'waiting for mysql'; sleep 1; done &&
+      php artisan migrate:fresh --seed &&
+      npm install &&
+      npm run prod &&
+      php artisan serve --host=0.0.0.0 --port=8000
+      "
   db:
     image: mysql:latest
     environment:
